@@ -18,6 +18,7 @@
 # Write your own HTTP GET and POST
 # The point is to understand what you have to send and get experience with it
 
+from ast import parse
 import sys
 import socket
 import re
@@ -41,13 +42,24 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        return None
+        # https://www.w3schools.com/python/ref_string_split.asp
+        #print("Data: ",data)
+        parsedData = data.split("\r\n")
+        # print(parsedData[0].split(" ")[1])
+        return int(parsedData[0].split(" ")[1])
 
     def get_headers(self,data):
-        return None
+        parsedData = data.split("\r\n\r\n")
+        headers = parsedData[0][1:] # All headers without the first line
+        print("headers: ", headers)
+        return headers
 
     def get_body(self, data):
-        return None
+        parsedData = data.split("\r\n\r\n")
+        if len(parsedData) > 1:
+            return parsedData[1]
+        else:   # If no content provided
+            return None
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -66,15 +78,51 @@ class HTTPClient(object):
             else:
                 done = not part
         return buffer.decode('utf-8')
+    def getParsedUrl(self, url):
+        # https://docs.python.org/3/library/urllib.parse.html
+        # https://stackoverflow.com/questions/7894384/python-get-url-path-sections
+        path = urllib.parse.urlparse(url).path
+        host = urllib.parse.urlparse(url).netloc.split(":")[0]
+        port = urllib.parse.urlparse(url).port
+        if port is None:
+            port = 80
+        return path, host, port
 
     def GET(self, url, args=None):
-        code = 500
-        body = ""
+        path, hostName, port = self.getParsedUrl(url)
+        # https://reqbin.com/req/nfilsyk5/get-request-example
+        # Sending request
+        self.connect(hostName, port)
+        self.sendall("GET "+ path + "HTTP/1.1\r\nHost: "+hostName+"\r\nConnection: close\r\n\r\n")
+        response = self.recvall(self.socket)
+        print("response: ",response)
+        self.close()
+
+        code = self.get_code(response)
+        body = self.get_body(response)
+
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        code = 500
-        body = ""
+        # https://reqbin.com/code/python/ighnykth/python-requests-post-example
+        path, hostName, port = self.getParsedUrl(url)
+
+        request = "POST "+ path + "HTTP/1.1\r\nHost: "+hostName+"\r\nContent-Type: application/x-www-form-urlencoded\r\n"
+        if args != None:
+            # args = urllib.parse.urlencode(args)
+            request += "Content Length: "+ str(len(args))+"\r\n" + args + "\r\n"
+        
+        request += "\r\n"
+        self.connect(hostName, port)
+        self.sendall(request)
+
+        response = self.recvall(self.socket)
+        print("response: ",response)
+        self.close()
+        code = self.get_code(response)
+        body = self.get_body(response)
+
+
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
