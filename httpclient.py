@@ -51,7 +51,6 @@ class HTTPClient(object):
     def get_headers(self,data):
         parsedData = data.split("\r\n\r\n")
         headers = parsedData[0][1:] # All headers without the first line
-        print("headers: ", headers)
         return headers
 
     def get_body(self, data):
@@ -82,10 +81,12 @@ class HTTPClient(object):
         # https://docs.python.org/3/library/urllib.parse.html
         # https://stackoverflow.com/questions/7894384/python-get-url-path-sections
         path = urllib.parse.urlparse(url).path
-        host = urllib.parse.urlparse(url).netloc.split(":")[0]
+        host = urllib.parse.urlparse(url).hostname
         port = urllib.parse.urlparse(url).port
         if port is None:
             port = 80
+        if len(path) == 0:
+            path = "/"
         return path, host, port
 
     def GET(self, url, args=None):
@@ -93,9 +94,9 @@ class HTTPClient(object):
         # https://reqbin.com/req/nfilsyk5/get-request-example
         # Sending request
         self.connect(hostName, port)
-        self.sendall("GET "+ path + "HTTP/1.1\r\nHost: "+hostName+"\r\nConnection: close\r\n\r\n")
+        self.sendall("GET "+ path + " HTTP/1.1\r\nHost: "+hostName+"\r\nConnection: close\r\n\r\n")
         response = self.recvall(self.socket)
-        print("response: ",response)
+        print(self.get_body(response))
         self.close()
 
         code = self.get_code(response)
@@ -107,17 +108,18 @@ class HTTPClient(object):
         # https://reqbin.com/code/python/ighnykth/python-requests-post-example
         path, hostName, port = self.getParsedUrl(url)
 
-        request = "POST "+ path + "HTTP/1.1\r\nHost: "+hostName+"\r\nContent-Type: application/x-www-form-urlencoded\r\n"
+        request = "POST "+ path + " HTTP/1.1\r\nHost: "+hostName+"\r\nContent-Type: application/x-www-form-urlencoded\r\n"
         if args != None:
-            # args = urllib.parse.urlencode(args)
-            request += "Content Length: "+ str(len(args))+"\r\n" + args + "\r\n"
+            args = urllib.parse.urlencode(args)
+            request += "Content-Length: "+ str(len(args))+"\r\n\r\n" + args + "\r\n"
+        else:
+            request += "Content-Length: 0\r\n\r\n"
         
-        request += "\r\n"
         self.connect(hostName, port)
         self.sendall(request)
 
         response = self.recvall(self.socket)
-        print("response: ",response)
+        print(self.get_body(response))
         self.close()
         code = self.get_code(response)
         body = self.get_body(response)
