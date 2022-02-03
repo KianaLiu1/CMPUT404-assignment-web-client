@@ -18,3 +18,10 @@ examples thus some of the code is Copyright © 2001-2013 Python
 Software Foundation; All Rights Reserved under the PSF license (GPL
 compatible) http://docs.python.org/2/library/socketserver.html
 
+References:
+https://www.w3schools.com/python/ref_string_split.asp
+https://docs.python.org/3/library/urllib.parse.html
+https://stackoverflow.com/questions/7894384/python-get-url-path-sections
+https://reqbin.com/req/nfilsyk5/get-request-example
+https://reqbin.com/code/python/ighnykth/python-requests-post-example
+https://instructobit.com/tutorial/110/Python-3-urllib%3A-making-requests-with-GET-or-POST-parameters

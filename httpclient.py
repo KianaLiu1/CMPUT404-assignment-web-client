@@ -18,6 +18,20 @@
 # Write your own HTTP GET and POST
 # The point is to understand what you have to send and get experience with it
 
+# Copyright [2022] [Yuetong(Kiana) Liu]
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from ast import parse
 import sys
 import socket
@@ -43,15 +57,17 @@ class HTTPClient(object):
 
     def get_code(self, data):
         # https://www.w3schools.com/python/ref_string_split.asp
-        #print("Data: ",data)
         parsedData = data.split("\r\n")
-        # print(parsedData[0].split(" ")[1])
         return int(parsedData[0].split(" ")[1])
 
     def get_headers(self,data):
         parsedData = data.split("\r\n\r\n")
-        headers = parsedData[0][1:] # All headers without the first line
-        return headers
+        headers = parsedData[0].split("\r\n")[1:] # All headers without the first line
+        headerDict = {}
+        for header in headers:
+            temp = header.split(":")
+            headerDict[temp[0]] = temp[1].strip()
+        return headerDict
 
     def get_body(self, data):
         parsedData = data.split("\r\n\r\n")
@@ -102,6 +118,7 @@ class HTTPClient(object):
         code = self.get_code(response)
         body = self.get_body(response)
 
+
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
@@ -110,6 +127,7 @@ class HTTPClient(object):
 
         request = "POST "+ path + " HTTP/1.1\r\nHost: "+hostName+"\r\nContent-Type: application/x-www-form-urlencoded\r\n"
         if args != None:
+            # https://instructobit.com/tutorial/110/Python-3-urllib%3A-making-requests-with-GET-or-POST-parameters
             args = urllib.parse.urlencode(args)
             request += "Content-Length: "+ str(len(args))+"\r\n\r\n" + args + "\r\n"
         else:
