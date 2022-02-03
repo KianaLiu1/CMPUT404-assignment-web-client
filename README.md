@@ -25,3 +25,5 @@ https://stackoverflow.com/questions/7894384/python-get-url-path-sections
 https://reqbin.com/req/nfilsyk5/get-request-example
 https://reqbin.com/code/python/ighnykth/python-requests-post-example
 https://instructobit.com/tutorial/110/Python-3-urllib%3A-making-requests-with-GET-or-POST-parameters
+
+Collaborator: zsu5
