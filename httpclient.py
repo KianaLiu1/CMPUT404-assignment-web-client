@@ -125,7 +125,7 @@ class HTTPClient(object):
         # https://reqbin.com/code/python/ighnykth/python-requests-post-example
         path, hostName, port = self.getParsedUrl(url)
 
-        request = "POST "+ path + " HTTP/1.1\r\nHost: "+hostName+"\r\nContent-Type: application/x-www-form-urlencoded\r\n"
+        request = "POST "+ path + " HTTP/1.1\r\nHost: "+hostName+"\r\nUser-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1\r\nContent-Type: application/x-www-form-urlencoded\r\n"
         if args != None:
             # https://instructobit.com/tutorial/110/Python-3-urllib%3A-making-requests-with-GET-or-POST-parameters
             args = urllib.parse.urlencode(args)
